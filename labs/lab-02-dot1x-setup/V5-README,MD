@@ -1,0 +1,183 @@
+#Version 1 of 02-lab
+-----------------
+
+This lab builds upon lab 01 where I first set up the inital compoentns using proxmox and Fortigate 60F firewall
+To make the document more easier to read, i have skipped the steps invloving the inital stepup
+ e.g creating a VM, installing new roles ande features and choosing Certificate Authority
+
+The goal of this lab is to implement 802.1x, which I have achieved using the following components:
+    - Certificate Authoritiy server VM
+    - Network Policy Server VM
+    - Cisco Switch
+    - Cisco AP
+    - Windows 11 client VM
+In addition, i have also created a Guest SSID, and configured traffic shaping which sets a max bandwidh of 10mbps for both download and upload.
+----------------
+Below is the topologoy for the lab.
+![Template settings](../../images/lab02-topologoy.png) # add image of topology here #
+
+
+
+Certificate Authority Server setup:
+
+Within the Certificate Server VM, i made two certificate templates:
+Computer template and RAS/IAS Server template, which is needed as clients need computer certificat and NPS needs the RAS/IAS.
+
+
+For the computer template:
+- I opened the Certificate Templates Console, then right-click the Computer template and selected Duplicate Template
+- In the Compatibility tab, i set the highest version supported by my environment # check video
+![Template settings](../../images/lab02-CA-template.01.png)
+
+Below are the following settings I used.
+![Template settings](../../images/lab02-CA-display-name.02.png)
+![Template settings](../../images/lab02-CA-subject-name-tab-03.png)
+![Template settings](../../images/lab02-CA-security-tab-04.png)
+
+For the RAS and IAS Server template:
+
+-I Right-clicked the RAS and IAS Server template and selected Duplicate Template.
+
+- The below imaages show the settings I used.
+![Template settings](../../images/lab02-CA-RAS-01.png)
+
+-Under extensions tab, verified that application policies includes server authentication (oid 1.3.6.1.5.5.7.3.1)
+![Template settings](../../images/lab02-CA-RAS-02.png)
+
+- Created a new group via the windows server dc. # seems like had a issue and did not end up using this later on.
+![Template settings](../../images/lab02-CA-RAS-03.png)
+
+- In the security tab, added the new group, and Granted Read and enroll permissions. # not sure if this is needed in the document
+![Template settings](../../images/lab02-CA-RAS-04.png)
+
+- Within the certification authority snap-in, right-cliked certificate templates, selected new, and click certificate template to issue.
+- Selected both certificates created earlier. 
+![Template settings](../../images/lab02-CA-RAS-05.png)
+
+
+GPO for certificate auto-enrollment 16:00 20:21
+
+- Initially, I planned to create a new GPO and apply it at an OU level, however to make the lab more simple, I decided to just edit--
+-- the default domain policy to ensure both the Client and NPS server receive their respective certificates.
+
+- On the DC, I opeed the group policy management, right-clicked the Default Domain Policy, and clicked Edit
+![Template settings](../../images/lab02-GPO-01.png)
+
+- I then Naviagted from Computer Configuration > Policies > Windows Settings > Security Settings > Pulbic key Policies > Certificate ---
+-- Services Client - Auto-Enrollment, and double clicked this.
+![Template settings](../../images/lab02-GPO-02.png)
+
+- I Changed the configuration Model from not configured to Enabled and clicked on the checkboxes as shown in the image below.
+![Template settings](../../images/lab02-GPO-03.png)
+
+
+NPS setup:
+
+-i Verified it obtained a server certificate via certlm > personal > certificates 
+![Template settings](../../images/lab02-NPS-01.png)
+
+---- Radius Policy configuration: # lab video 02
+
+Radius Client:
+- I opened the NPS, navigated under Radius Client and Servers and clicked New on Radius client.
+![Template settings](../../images/lab02-NPS-02.png)
+
+--edit here when you are back ---
+
+
+Connection request policy:
+- Left this as default as this was not necessary for my lab.
+
+Network Policy:
+15:43
+  
+- The images below show the configurations for the network policy.
+![Template settings](../../images/lab02-NPS-03.png)
+![Template settings](../../images/lab02-NPS-04.png)
+![Template settings](../../images/lab02-NPS-05.png)
+![Template settings](../../images/lab02-NPS-06.png)
+![Template settings](../../images/lab02-NPS-07.png)
+![Template settings](../../images/lab02-NPS-08.png)
+
+---------------------------------------------------------------
+
+Cisco AP configuration:
+
+= i first logged in to the AP Web UI via its ip address.
+- I created a new WLAN
+- i set the security as WPA2/Enterprise
+- i configured the Radius server to point to the NPS
+- Selected VLAN ID as 44, as wanted the NPS to dynamically assign vlan 25 to the client. Added Vlan 25 to the vlan database in the AP.
+- Clicked Apply and finished setting up the new WLAN.
+- On the Windows11 client VM, I checked if it obtained a certificate by the CA to test the new WLAN and 802.1x configuration.
+- Ran Into issue where client were sucessfully connected to the network
+ - evidence from both the AP WebUI and NPS logs however it didn't get assinged vlan 25
+ therefore having no internet access.
+- For a temporary fix, switched the VlAN ID 44 to VLAN ID 25, meaning I am no longer using dynamic vlan assigment and instead leeting the AP assign Vlan tag to clients locally.
+- This fixed the issue for now as the client now joined vlan 25 and had internet access.
+
+![Template settings](../../images/lab02-AP-01.png)
+![Template settings](../../images/lab02-AP-02.png)
+![Template settings](../../images/lab02-AP-03.png)
+![Template settings](../../images/lab02-AP-04.png)
+![Template settings](../../images/lab02-AP-05.png)
+![Template settings](../../images/lab02-AP-06.png)
+![Template settings](../../images/lab02-AP-07.png)
+![Template settings](../../images/lab02-AP-08.png)
+![Template settings](../../images/lab02-AP-09.png)
+![Template settings](../../images/lab02-AP-10.png)
+![Template settings](../../images/lab02-AP-11.png)
+
+
+Troubleshooting:
+- After reviewing the configurations and doing some research, I realised the 'AAA Overide' checkbox was unchecked, this was necessary ---
+--- to allow the NPS to send the dynamic vlan to the clients, after enabling this and changing the local Vlan from 25 to 44, 
+I confirmed the client were now receiving vlan 25 from the NPS.
+
+![Template settings](../../images/lab02-AP-12.png)
+![Template settings](../../images/lab02-AP-13,png)
+![Template settings](../../images/lab02-AP-14.png)
+
+
+
+
+Cisco Switch Configuration:
+
+- I first created all the vlans
+![Template settings](../../images/lab02-SW-01.png)
+
+- I then configured interface Gi2/0/1, Gi2/0/5, Gi2/0/8, Gi2/0/13,and  Vlan55.
+
+![Template settings](../../images/lab02-SW-02.png)
+![Template settings](../../images/lab02-SW-03.png)
+
+- I set up ssh on switch and configured the vty lines to only use ssh.
+![Template settings](../../images/lab02-SW-04.png)
+![Template settings](../../images/lab02-SW-
+
+
+---------------------
+
+Guest SSID:
+
+- I configured a new WLAN, and named it Guest-lab. 
+![Template settings](../../images/lab02-Guest-01.png)
+
+- In the WLAN Security tab, I enabled Gest Network and Captive Network Assistant as I wanted clients to accpet the AUP via a web portal  to gain network access.
+![Template settings](../../images/lab02-Guest-02.png)
+
+-In the VLan & Firewall tab, i set the vlan id as 30, and added vlan 30 to the vlan database.
+![Template settings](../../images/lab02-Guest-03.png)
+
+-In the traffic shaping tab, I changed the value of 0 to 10240 for the downstream and upstream bandwidth limit.
+![Template settings](../../images/lab02-Guest-04.png)
+
+-=-=- last edititied line here, show image of you changing the splash page, and testing with a guest client of joining the ssid, and 
+-- testing download and upload speed to check if traffic shaping is working---
+
+
+
+
+
+
+
