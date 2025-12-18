@@ -1,5 +1,11 @@
-------Hi, I am an aspiring network and systems engineer and have created this repo, to document and share my learning journey.
+# Homelab
 
-I will be practising various techonologies to gain experience for servers and networking.
+This repository documents my personal homelab projects focused on
+virtualization, Windows Server, networking, and security.
 
+## Labs
 
+- [Lab 01 – Basic Proxmox + AD Setup](labs/lab-01-basic-setup)
+- [Lab 02 – 802.1X Network Authentication](labs/lab-02-8021x-setup)
+
+Each lab includes topology diagrams, configuration steps, and validation.
