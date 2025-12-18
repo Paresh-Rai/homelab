@@ -16,7 +16,7 @@ This lab will be expanded in the future (e.g., integrating a switch and access p
 
 ## Topology
 
-![Topology](images/topology.png)topology.png)
+![Topology](images/topology.png)
 
 ---
 
@@ -24,11 +24,11 @@ This lab will be expanded in the future (e.g., integrating a switch and access p
 
 - Created a new virtual bridge on Proxmox: `vmbr10`
 
-  ![Proxmox vmbr10 configuration](images/topology.png)bridge_setup.png)
+  ![Proxmox vmbr10 configuration](images/bridge_setup.png)
 
 - SSH’d into Proxmox and created a backup of `/etc/network/interfaces` using `cp` (for rollback if needed)
 
-  ![Creating a backup](images/topology.png)network-interface-backup.png)
+  ![Creating a backup](images/network-interface-backup.png)
 
 - Bound `vmbr10` to the physical Ethernet interface
 - Enabled **VLAN-aware** mode
@@ -42,7 +42,7 @@ This lab will be expanded in the future (e.g., integrating a switch and access p
 - Changed computer name to `GoT-SRV-01` and rebooted
 - Configured network settings as shown below:
 
-  ![Network settings](images/topology.png)network-settings.png)
+  ![Network settings](images/network-settings.png)
 
 - Installed the following roles and rebooted:
   - Active Directory Domain Services
@@ -54,7 +54,7 @@ This lab will be expanded in the future (e.g., integrating a switch and access p
   - Root domain name: `GoT.local`
   - Rebooted after promotion
 
-  ![Server settings](images/topology.png)server-settings.png)
+  ![Server settings](images/server-settings.png)
 
 ### Active Directory Configuration
 
@@ -64,7 +64,7 @@ This lab will be expanded in the future (e.g., integrating a switch and access p
   - Created a user: **Ned Stark**
   - Created two groups: **Male** and **Female**
 
-  ![OU creation](images/topology.png)OU-creation.png)
+  ![OU creation](images/OU-creation.png)
 
 ### DHCP Configuration
 
@@ -78,11 +78,11 @@ This lab will be expanded in the future (e.g., integrating a switch and access p
 
 - Created two additional IPv4 scopes for different VLANs:
 
-  ![DHCP Scopes](images/topology.png)DHCP-Scope-creation.png)
-  ![DHCP VLAN 10](images/topology.png)DHCP-VLAN10-01.png)
-  ![DHCP VLAN 10 Options](images/topology.png)DHCP-VLAN10-02.png)
-  ![DHCP VLAN 20](images/topology.png)DHCP-VLAN20-01.png)
-  ![DHCP VLAN 20 Options](images/topology.png)DHCP-VLAN20-02.png)
+  ![DHCP Scopes](images/DHCP-Scope-creation.png)
+  ![DHCP VLAN 10](images/DHCP-VLAN10-01.png)
+  ![DHCP VLAN 10 Options](images/DHCP-VLAN10-02.png)
+  ![DHCP VLAN 20](images/DHCP-VLAN20-01.png)
+  ![DHCP VLAN 20 Options](images/DHCP-VLAN20-02.png)
 
 - Both scopes use the same IP range
 - Default gateway differs per scope to reflect different VLANs
@@ -97,7 +97,7 @@ This lab will be expanded in the future (e.g., integrating a switch and access p
 
 - Started the VM and verified DHCP assignment using:
 
-  ![IP config](images/topology.png)ipconfig.png)
+  ![IP config](images/ipconfig.png)
 
 - Tested connectivity using:
   - `ping` (IP and DNS)
@@ -111,7 +111,7 @@ This lab will be expanded in the future (e.g., integrating a switch and access p
 - Logged in using **Ned Stark**
 - Confirmed the VM successfully joined the domain
 
-  ![Client DHCP configuration](images/topology.png)WM-CLIENT-VLAN20.png)
+  ![Client DHCP configuration](images/WM-CLIENT-VLAN20.png)
 
 ---
 
@@ -139,7 +139,7 @@ This lab will be expanded in the future (e.g., integrating a switch and access p
 - Connected `wan1` to the home router
 - IP information obtained via DHCP
 
-  ![VLAN sub-interfaces](images/topology.png)dhcp_relay.png)
+  ![VLAN sub-interfaces](images/dhcp_relay.png)
 
 ---
 
