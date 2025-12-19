@@ -1,4 +1,4 @@
-# Lab 02 – 802.1X Implementation (Draft)
+# Lab 02 – 802.1X Implementation 
 
 ---
 
