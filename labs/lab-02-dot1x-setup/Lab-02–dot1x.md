@@ -4,7 +4,7 @@
 
 ## Overview
 
-This lab builds upon **Lab 01**, where the initial components were set up using Proxmox and the Fortigate 60F firewall.  
+This lab builds upon **Lab 01**, where the initial components were set up using Proxmox and the FortiGate 60F firewall.  
 To make the document easier to read, the steps involving initial setup (creating VMs, installing roles and features, setting up the Certificate Authority) have been omitted.  
 
 **Lab Goal:** Implement 802.1X authentication.  
@@ -18,7 +18,7 @@ To make the document easier to read, the steps involving initial setup (creating
 
 **Additional Configurations:**
 - Guest SSID with a captive portal
-- Traffic shaping: max bandwidth 10 Mbps for both upload and download
+- Traffic shaping: max bandwidth 20 Mbps download and 5 Mbps upload
 
 ---
 
@@ -106,7 +106,21 @@ Two templates were created:
 **Images:**
 - ![AP 01](images/lab02-AP-01.png)
 - ![AP 02](images/lab02-AP-02.png)
-- … (up to AP-14)  
+- ![AP 03](images/lab02-AP-03.png)
+- ![AP 04](images/lab02-AP-04.png) 
+
+- ![AP 05](images/lab02-AP-05.png) 
+- ![AP 06](images/lab02-AP-06.png) 
+- ![AP 07](images/lab02-AP-07.png) 
+- ![AP 08](images/lab02-AP-08.png) 
+
+- ![AP 09](images/lab02-AP-09.png)  
+- ![AP 10](images/lab02-AP-10.png) 
+- ![AP 11](images/lab02-AP-11.png) 
+- ![AP 12](images/lab02-AP-12.png) 
+
+- ![AP 13](images/lab02-AP-13.png) 
+- ![AP 14](images/lab02-AP-14.png) 
 
 ---
 
@@ -130,24 +144,38 @@ Two templates were created:
 - WLAN Name: `Guest-lab`
 - Enabled Guest Network and Captive Network Assistant
 - VLAN ID: 30
-- Traffic Shaping: 10 Mbps up/down
+- Traffic Shaping: 20 Mbps down and 5 Mbps UP
 - Tested guest client connection and bandwidth
+- configured Guest Splash Page.
 
 **Images:**
 - ![Guest 01](images/lab02-Guest-01.png)
 - ![Guest 02](images/lab02-Guest-02.png)
 - ![Guest 03](images/lab02-Guest-03.png)
 - ![Guest 04](images/lab02-Guest-04.png)
-
+- ![Guest 05](images/lab02-Guest-05.png)
 ---
 
-## Notes / Next Steps
+## Guest Client Test
 
-- Some sections are placeholders and need further edits:
-  - NPS configuration details for connection request policy
-  - Final testing of Guest SSID splash page
-  - Verification of traffic shaping
-- Draft labeled as **Version 1**  
+- Joined Guest-lab from an iPhone
+- Clicked **Connect** o the captive portal
+- Verified the client received an IP address via DHCP
+- Performed a speed test to confirm taffic shapping was applied
 
+**Images:**
+- ![Guest 06](images/lab02-Guest-06.png)
+- ![Guest 07](images/lab02-Guest-07.png)
+- ![Guest 08](images/lab02-Guest-08.png)
+- ![Guest 09](images/lab02-Guest-09.png)
+- ![Guest 10](images/lab02-Guest-10.png)
+- ![Guest 11](images/lab02-Guest-11.png)
 ---
 
+## Notes
+
+- Dynamic VLAN assignment via RADIUS was initially misconfigured and later resolved by enabling AAA Override on the access point.
+- Future improvements may include:
+  - Separate GPOs instead of Default Domain Policy
+  - Additional NPS policy hardening
+  - Wired 802.1X testing on switch ports
