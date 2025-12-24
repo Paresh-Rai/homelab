@@ -1,7 +1,7 @@
 # Homelab
 
 This repository documents my personal homelab projects focused on
-virtualization, Windows Server, networking, and security.
+virtualization, Windows Server, networking, linux,and security.
 
 ## Labs
 
