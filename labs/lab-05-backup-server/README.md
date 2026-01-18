@@ -88,7 +88,7 @@ To make the document more simple, i have not included full configurations for th
 
 - Configured key-based authentcation on the FortiGate and Switch
 
-![Key authentication setup](images/Sw-ss-01-ssh.png)
+![Key authentication setup](images/SW-ss-01-ssh.png)
 
 ![Key authentication setup](images/fgfw-ss-01-ssh.png)
 
