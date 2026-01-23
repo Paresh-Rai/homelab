@@ -1,22 +1,17 @@
-# Lab 04 – Zabbix 7.0 Enterprise Monitoring & Alerting
+# Lab 04 – Zabbix Monitoring & Alerting
 
 ---
 
-## Overview
+## Objective/Overview
 
-This lab documents the deployment and configuration of **Zabbix 7.0** as the centralized monitoring and alerting platform for my homelab environment.
-
-The Zabbix server was deployed on a newly built Linux VM, and configured to monitor **network, server, and security devices** using both SNMP and agent-based monitoring.
-
-**Lab Goal:**  
-Implement a monitoring solution with automated discovery, visual topology mapping, and email alerting.
+Deploy a monitoring solution to monitor and alert for any issues in the homelab. For simplicitiy, I decided not to include the CA, NPS, AP, and use snmpv2 for this setup.
 
 ---
 
 ## Components Used
 
 - Proxmox (Hypervisor)
-- Ubuntu Server (Zabbix Server)
+- Ubuntu Server VM
 - Zabbix 7.0
 - Cisco 3750X Switch
 - FortiGate Firewall
@@ -26,13 +21,13 @@ Implement a monitoring solution with automated discovery, visual topology mappin
 
 ---
 
-## Topology
+### Topology
 
-![Zabbix Monitoring Topology](images/lab04-zabbix-topology.png)
+![Zabbix Monitoring Topology](images/Zabbix-Topologoy.png)
 
 ---
 
-## Zabbix Server Installation (Linux)
+### Zabbix Server Installation (Linux)
 
 - Deployed an Ubuntu Server VM on Proxmox
 - Added the official **Zabbix 7.0 repositories**
@@ -41,130 +36,93 @@ Implement a monitoring solution with automated discovery, visual topology mappin
   - MySQL
   - PHP
   - Zabbix Server and Frontend
-
-### Database Configuration
-
-- Created a dedicated MySQL database for Zabbix
-- Configured database encoding as `utf8mb4_bin`
-
-### Issue Encountered – Zabbix Server Not Running
-
-- **Problem:** Zabbix Web UI reported *“Zabbix server is not running”*
-- **Root Cause:** PHP configuration mismatch with the Zabbix server socket
-- **Resolution:**
-  - Updated `/etc/zabbix/zabbix_server.conf`
-  - Aligned settings with `/etc/zabbix/apache.conf`
-  - Verified service status using:
-    ```bash
-    ss -tulpn | grep 10051
-    ```
+- DBPassword has been blurred for security.
+![Zabbix Setup](images/zabbix-vm-setup-01.png)
+![Zabbix Setup](images/zabbix-vm-setup-02.png)
+![Zabbix Setup](images/zabbix-vm-setup-03.png)
+![Zabbix Setup](images/zabbix-vm-setup-04.png)
 
 ---
 
-## Device Integration
+### Cisco 3750X Switch
 
-### Cisco 3750X Switch (Network Tier)
-
-- Monitoring method: **SNMPv2c**
-- Configured SNMP community string
-- Restricted SNMP access to the Zabbix server using a Standard ACL
-- Enabled SNMP traps for interface link status
-
-### Windows & Linux Servers (Compute Tier)
-
-- Installed Zabbix Agent (active/passive)
-- Opened port **10050** on Windows Firewall and Linux iptables
-- Verified successful communication with the Zabbix server
-
-### FortiGate Firewall (Security Tier)
-
-- Integrated using SNMP
-- Monitored CPU usage, memory utilization, and VPN tunnel status
+- Configured SNMPv2
+- Restricted SNMP access to the Zabbix server using a Standard 
+ACL
+- Community string has been blurred for security
+![Cisco SW setup](images/SW-snmp-01.png)
 
 ---
 
-## Zabbix Frontend Configuration
+### FortiGate Firewall 
 
-- Manually added hosts using management IP addresses
-- Applied official Zabbix templates:
-  - **Cisco IOS by SNMP**
-  - **Linux by Zabbix Agent**
-  - **Windows by Zabbix Agent**
-
-### Low-Level Discovery (LLD)
-
-- Enabled LLD to automatically discover:
-  - Switch interfaces
-  - VLANs
-  - Sensors
-- Reduced the need for manual item creation and ongoing maintenance
+- Configured SNMPv2
+- Used the default SNMP events
+- Community string has been blurred for security
+![FGFW Setup](images/FGFW-01.png)
+![FGFW Setup](images/FGFW-02.png) # blur the community_name
 
 ---
 
-## Topology Mapping
+### Windows Server
 
-- Created a network map under **Monitoring → Maps**
-- Linked devices to represent real network dependencies
-- Configured trigger-based links:
-  - ICMP and interface triggers change link color when failures occur
-- Enabled at-a-glance visibility of network health
+- Downloaded Zabbix Agent, and set it up
+![Windows Server Setup](images/WM-downloads.png)
+- Forgot to take screenshots during exact set up process, however inlcuded screenshot below of the .conf file
+![Windows Server Setup](images/WM-zabbix-agent-settings.png)
 
 ---
 
-## Alerting Configuration (SMTP)
+### Linux Server
+- Installed Zabbix Agent, enabled and started it using systemctl, and added the sever ip and hostname on the .conf file
 
-### SMTP Relay Setup
+![Linux Server Setup](images/linux-vm-01.png)
+![Linux Server Setup](images/linux-vm-02.png)
 
-- Used **Brevo (formerly Sendinblue)** as an external SMTP relay
-- Avoided ISP restrictions on outbound SMTP (Port 25)
+---
 
-**Configuration Details:**
-- SMTP Server: `smtp-relay.sendinblue.com`
-- Port: `587`
-- Encryption: STARTTLS
+### Zabbix WebUI Configuration
 
-### Zabbix Media Type
+- Added each device/vm on via Data collection > hosts > create host
+![Zabbix UI Setup](images/zabbix-UI-01.png)
+- Selected the matching template for each host
+- For Fortigate and the Cisco Switch, they needed the matching community string via the Macros tab, example screenshot below
+- Commntiy string has been blurred for security
+![Zabbix UI Setup](images/zabbix-UI-02.png)
+![Zabbix UI Setup](images/zabbix-UI-03.png)
 
-- Configured Email media type
-- Defined message templates for:
-  - Problem notifications
-  - Recovery notifications
+---
 
-### User Media Configuration
+## Alerting Configuration 
 
-- Added recipient email address to Admin user
-- Enabled all severity levels for alert delivery
+- Created a new media type via ALerts > Media types > Create edia type
+- Created a account with Brevo which will be used as an external SMTP relay - For simpilicty, have not included steps in Brevo
+![Alert setup](images/zabbix-alert-01.png)
+- Created two new message templates, one for a problem e.g interface down, and one for the problem recover e.g Interface back up
+![Alert setup](images/zabbix-alert-02.png)
+
+- Configured the admin account to be used for Alerting via Users > Users
+![Alert setup](images/zabbix-alert-03.png)
+![Alert setup](images/zabbix-alert-04.png)
+- Created an alert  via ALerts > actions > trigger actions
+![ALert setup](images/zabbix-alert-05.png)
+![Alert setup](images/zabbix-alert-06.png)
+![Alert setup](images/zabbix-alert-07.png)
 
 ---
 
 ## Testing & Validation
 
-- Verified SMTP relay using the Media Type test function
-- Simulated failures to validate alerting:
-  - Changed hostname on Cisco switch
-  - Shut down switch interfaces
-- Confirmed:
-  - Triggers activated correctly
-  - Dashboard reflected problem state
-  - Email alerts and recovery notifications were delivered
+- Stimulated failure event via shutdown an interface on the switch
+- Received email for the problem and email when problem was resolved
+![Email Test](images/zabbix-alert-08.PNG)
+![Email Test](images/zabbix-alert-09.PNG)
 
 ---
 
-## Notes / Troubleshooting
+## Notes/Next Steps
 
-- **Issue:** *“No message defined in media type”*  
-  **Resolution:** Added message templates for both problem and recovery events
-
-- **Issue:** *“No media defined for user”*  
-  **Resolution:** Assigned email address under **User → Media** and linked it to the SMTP media type
-
----
-
-## Next Steps
-
-- Secure Zabbix frontend with SSL
-- Monitor additional services (HTTP, disk I/O, process monitoring)
-- Add Telegram or Microsoft Teams alerting
-- Monitor Proxmox host metrics and storage health
+- Implement SNMP Traps for real time alerts
+- Create custom dashboards e.g hosts with highest traffic
 
 ---
